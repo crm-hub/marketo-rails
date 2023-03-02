@@ -1,12 +1,6 @@
 module Marketo
   module Rails
     module ETL
-      module Registrar
-        def self.included(base)
-          Registry.register(base)
-        end
-      end
-
       class Registry
         class << self
           def sync_objects

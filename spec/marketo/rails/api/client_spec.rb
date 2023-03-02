@@ -80,16 +80,6 @@ describe Marketo::Rails::API::Client do
                 ).once
         client.get('/resource_path', params: params)
       end
-
-      it 'retries the request in case of a temporary failure' do
-        call_count = 0
-        allow(response).to receive(:process!) do
-          call_count += 1
-          call_count.odd? ? raise(Marketo::Rails::Errors::TemporaryAPIError) : successful_response
-        end
-        expect(Marketo::Rails::API::Request).to receive(:send).twice
-        client.get('/resource_path', params: params)
-      end
     end
 
     context '#post' do
@@ -106,15 +96,28 @@ describe Marketo::Rails::API::Client do
                 ).once
         client.post('/resource_path', params: params)
       end
+    end
 
-      it 'retries the request in case of a temporary failure' do
+    context 'wrapped request' do
+      it 'reconnects and retries the request in case of a authentication failure' do
+        call_count = 0
+        allow(response).to receive(:process!) do
+          call_count += 1
+          call_count.odd? ? raise(Marketo::Rails::Errors::APIAuthenticationError) : successful_response
+        end
+        expect(Marketo::Rails::API::Request).to receive(:send).twice
+        expect(client).to receive(:connect).once
+        client.get('/resource_path', params: params)
+      end
+
+      it 'retries the request once in case of a temporary failure' do
         call_count = 0
         allow(response).to receive(:process!) do
           call_count += 1
           call_count.odd? ? raise(Marketo::Rails::Errors::TemporaryAPIError) : successful_response
         end
         expect(Marketo::Rails::API::Request).to receive(:send).twice
-        client.post('/resource_path', params: params)
+        client.get('/resource_path', params: params)
       end
     end
   end

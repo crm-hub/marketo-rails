@@ -1,3 +1,6 @@
+require 'simplecov'
+SimpleCov.start
+
 require 'marketo/rails'
 require 'active_record'
 

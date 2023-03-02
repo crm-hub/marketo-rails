@@ -39,10 +39,6 @@ module Marketo
 
         private
 
-        def fetch
-          klass.client.get(path, params: search_params)
-        end
-
         def search_params
           params.merge(paginator.params)
         end
